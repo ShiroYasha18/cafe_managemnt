@@ -22,11 +22,18 @@ def fetch_all_items():
     c.execute("SELECT * FROM cafe_items")
     rows = c.fetchall()
     return rows
-
+def item_name_exists(name):
+    c.execute("SELECT COUNT(*) FROM cafe_items WHERE name = ?", (name,))
+    count = c.fetchone()[0]
+    return count > 0
 def add_item(name, price, description):
-    c.execute("INSERT INTO cafe_items (name, price, description) VALUES (?, ?, ?)", (name, price, description))
-    conn.commit()
-    st.success("Item added successfully!")
+    if not item_name_exists(name):
+        c.execute("INSERT INTO cafe_items (name, price, description) VALUES (?, ?, ?)", (name, price, description))
+        conn.commit()
+        st.success("Item added successfully!")
+    else:
+        st.error("Item with that name already exists. Please choose a unique name.")
+
 
 def update_item(id, name, price, description):
     c.execute("UPDATE cafe_items SET name = ?, price = ?, description = ? WHERE id = ?", (name, price, description, id))
