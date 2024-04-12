@@ -40,10 +40,13 @@ def update_item(id, name, price, description):
     conn.commit()
     st.success("Item updated successfully!")
 
-def delete_item(id):
-    c.execute("DELETE FROM cafe_items WHERE id = ?", (id,))
-    conn.commit()
-    st.success("Item deleted successfully!")
+def delete_item_by_name(name):
+    if item_name_exists(name):
+        c.execute("DELETE FROM cafe_items WHERE name = ?", (name,))
+        conn.commit()
+        st.success("Item deleted successfully!")
+    else:
+        st.error("Item with that name does not exist.")
 
 st.title("Cafe Menu Management 🤎 ☕ 🧋")
 
@@ -80,11 +83,9 @@ if selected_operation == "Update":
                 update_item(selected_item_id, updated_name, updated_price, updated_description)
 
 if selected_operation == "Delete":
-    items = fetch_all_items()
-    if items:
-        selected_item_id = st.sidebar.selectbox("Select Item to Delete", [item[0] for item in items])
-        if selected_item_id:
-            if st.button("Delete Item", key="delete"):
-                delete_item(selected_item_id)
+    st.subheader("Delete Item by Name")
+    item_to_delete_name = st.text_input("Enter Item Name")
+    if st.button("Delete Item", key="delete"):  # Added key to prevent accidental deletion
+        delete_item_by_name(item_to_delete_name)
 
 conn.close()
